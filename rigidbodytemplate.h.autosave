@@ -27,7 +27,7 @@ private:
     void translateRigidBodyToOrigin();
     void calculateSmallestRadius();
     void scaleRigidBody();
-    void calculateInertiaTensor();
+    void calculateInertiaTensorMatrix();
 
     Mesh *mesh_;
 };
