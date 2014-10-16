@@ -12,13 +12,18 @@ public:
     RigidBodyTemplate(std::string &meshFilename);
     ~RigidBodyTemplate();
 
-    const Mesh &getMesh() const {return *m_;}
+    double vol;
+    Eigen::Vector3d centerOfMass;
+
+    const Mesh &getMesh() const {return *mesh_;}
 
 private:
     RigidBodyTemplate(const RigidBodyTemplate &other);
     RigidBodyTemplate &operator=(const RigidBodyTemplate &other);
+    void calculateVolume();
+    void calculateCenterOfMass();
 
-    Mesh *m_;
+    Mesh *mesh_;
 };
 
 #endif // RIGIDBODYTEMPLATE_H
