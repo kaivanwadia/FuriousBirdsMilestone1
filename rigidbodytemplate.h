@@ -16,6 +16,8 @@ public:
     double radius;
     Eigen::Vector3d centerOfMass;
     Eigen::Matrix3d inertiaTensor;
+    Eigen::Matrix3d eigenVectors;
+    Eigen::Vector3d eigenValues;
 
     const Mesh &getMesh() const {return *mesh_;}
 
@@ -27,7 +29,8 @@ private:
     void translateRigidBodyToOrigin();
     void calculateSmallestRadius();
     void scaleRigidBody();
-    void calculateInertiaTensor();
+    void calculateInertiaTensorMatrix();
+    void computeEigenVectorsandValues();
 
     Mesh *mesh_;
 };

@@ -134,8 +134,35 @@ void Simulation::addRigidBody(Vector3d pos, Vector3d lookdir)
 {
     renderLock_.lock();
     {
-        Vector3d orient(0,0,0);       
-        RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[params_.launchBody], pos, orient, params_.bodyDensity);
+        Vector3d orient(0,0,0);
+        Vector3d velocity, vForAngularW, angularV;
+        vForAngularW.setZero();
+        if (params_.randomLaunchOrientation)
+        {
+            orient[0] = VectorMath::randomUnitIntervalReal();
+            orient[1] = VectorMath::randomUnitIntervalReal();
+            orient[2] = VectorMath::randomUnitIntervalReal();
+            double norm = orient.norm();
+            orient = orient/norm;
+        }
+        if (params_.randomLaunchAngVel)
+        {
+            vForAngularW[0] = VectorMath::randomUnitIntervalReal();
+            vForAngularW[1] = VectorMath::randomUnitIntervalReal();
+            vForAngularW[2] = VectorMath::randomUnitIntervalReal();
+            double norm = vForAngularW.norm();
+            vForAngularW = vForAngularW/norm;
+            vForAngularW = vForAngularW*params_.randomLaunchVelMagnitude;
+            double orientnorm = orient.norm();
+            Matrix3d Id;
+            Id.setIdentity();
+            Eigen::Matrix3d Rtheta = cos(orientnorm)*Id + sin(orientnorm)*VectorMath::crossProductMatrix(orient) + (1-cos(orientnorm))*orient*orient.transpose();
+            angularV = Rtheta*vForAngularW;
+            cout <<"Angular v:\n"<<angularV<<endl;
+        }
+        velocity = ((lookdir - pos)/(lookdir - pos).norm())*params_.launchVel;
+//        RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[params_.launchBody], pos, orient, params_.bodyDensity);
+        RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[params_.launchBody], pos, orient, params_.bodyDensity, velocity, angularV);
         bodies_.push_back(newbody);
     }
     renderLock_.unlock();

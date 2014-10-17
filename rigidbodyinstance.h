@@ -9,6 +9,7 @@ class RigidBodyInstance
 {
 public:
     RigidBodyInstance(const RigidBodyTemplate &rbtemplate, const Eigen::Vector3d &c, const Eigen::Vector3d &theta, double density);
+    RigidBodyInstance(const RigidBodyTemplate &rbtemplate, const Eigen::Vector3d &c, const Eigen::Vector3d &theta, double density, Eigen::Vector3d cvel, Eigen::Vector3d w);
 
     void render();
 
