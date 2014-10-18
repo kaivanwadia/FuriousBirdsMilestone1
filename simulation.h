@@ -30,6 +30,16 @@ public:
     void clearScene();
     void addRigidBody(Eigen::Vector3d pos, Eigen::Vector3d lookdir);
 
+    Eigen::Matrix3d computeTMatrix(Eigen::Vector3d vec);
+    Eigen::Matrix3d computeD1ofOmega(Eigen::Vector3d omega, Eigen::Vector3d firstTerm);
+    Eigen::Matrix3d computeD2ofOmega(Eigen::Vector3d omega, Eigen::Vector3d secondTerm);
+    Eigen::Matrix3d computeBMatrix(Eigen::Vector3d thetaI, Eigen::Vector3d omega);
+
+    Eigen::Vector3d computeGradVwrtFirstParam(Eigen::Vector3d cOfM, Eigen::Vector3d theta);
+    void computeV(Eigen::Vector3d cOfM, Eigen::Vector3d theta);
+    void computeD2ofV(Eigen::Vector3d cOfM, Eigen::Vector3d theta);
+
+
 private:
     void loadFloorTexture();
     void loadRigidBodies();
