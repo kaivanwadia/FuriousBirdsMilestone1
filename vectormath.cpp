@@ -38,7 +38,7 @@ const Vector3d VectorMath::axisAngle(const Matrix3d &rotationMatrix)
     RminusI.setIdentity();
     RminusI = rotationMatrix - RminusI;
 
-    std::cout<<"\nRot Matrix: \n"<<rotationMatrix<<std::endl;
+//    std::cout<<"\nRot Matrix: \n"<<rotationMatrix<<std::endl;
     JacobiSVD<MatrixXd> svd(RminusI, ComputeFullV);
     assert(fabs(svd.singularValues()[2]) < 1e-8);
     Vector3d axis = svd.matrixV().col(2);
