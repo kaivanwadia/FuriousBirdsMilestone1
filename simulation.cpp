@@ -137,13 +137,12 @@ void Simulation::takeSimulationStep()
             for(i = 0; i<params_.NewtonMaxIters; i++)
             {
                 Vector3d fOfOmega;
-                fOfOmega.setZero();
-                cout<<"\nPart 1 :\n"<<params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
-                      *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta)<<endl;
+//                cout<<"\nPart 1 :\n"<<params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
+//                                      *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta)<<endl;
                 fOfOmega = constant.transpose() + params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
                         *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta);
                 cout<<"F Of Omega Temp: \n"<<fOfOmega<<endl;
-                fOfOmega += params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
+                fOfOmega += -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
                         *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
                 cout<<"F Of Omega Final: \n"<<fOfOmega<<endl;
                 if (fOfOmega.norm() < params_.NewtonTolerance)
@@ -154,7 +153,7 @@ void Simulation::takeSimulationStep()
                         *VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega((*it)->w, newTheta);
                 cout<<"Grad F : "<<gradF<<endl;
                 VectorXd deltaOmega = -1*gradF.inverse()*fOfOmega;
-                cout<<"Delta Omega : "<<deltaOmega<<endl;
+                cout<<"\n Delta Omega : "<<deltaOmega<<endl;
                 newOmega += deltaOmega;
                 cout<<"Temp new Omega:\n"<<newOmega<<endl;
             }
@@ -200,16 +199,14 @@ Matrix3d Simulation::computeD1ofOmega(Vector3d omega, Vector3d firstTerm)
 Matrix3d Simulation::computeTMatrix(Vector3d vec)
 {
     Matrix3d tMatrix;
-    if (vec.norm() <= 0)
+    if (vec.norm() == 0)
     {
         tMatrix.setIdentity();
         return tMatrix;
     }
-    tMatrix.setZero();
     Matrix3d identity;
     identity.setIdentity();
-    tMatrix = (vec*vec.transpose() + (VectorMath::rotationMatrix(-1*vec) - identity)*VectorMath::crossProductMatrix(vec));
-    tMatrix = tMatrix/vec.squaredNorm();
+    tMatrix = (vec*vec.transpose() + (VectorMath::rotationMatrix(-1*vec) - identity)*VectorMath::crossProductMatrix(vec))/vec.squaredNorm();
     return tMatrix;
 }
 
@@ -233,6 +230,9 @@ void Simulation::clearScene()
 
 void Simulation::addRigidBody(Vector3d pos, Vector3d lookdir)
 {
+//    Vector3d t;
+//    t.setOnes();
+//    cout<<"t:\n"<<t.transpose()<<endl;
     renderLock_.lock();
     {
         Vector3d orient(0,0,0);
@@ -259,9 +259,11 @@ void Simulation::addRigidBody(Vector3d pos, Vector3d lookdir)
             Id.setIdentity();
             Eigen::Matrix3d Rtheta = cos(orientnorm)*Id + sin(orientnorm)*VectorMath::crossProductMatrix(orient) + (1-cos(orientnorm))*orient*orient.transpose();
             angularV = Rtheta*vForAngularW;
+            cout <<"Angular v:\n"<<angularV<<endl;
         }
         velocity = lookdir*params_.launchVel;
 //        RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[params_.launchBody], pos, orient, params_.bodyDensity);
+        cout<<"Velocity:"<<velocity<<endl;
         RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[params_.launchBody], pos, orient, params_.bodyDensity, velocity, angularV);
         bodies_.push_back(newbody);
     }
