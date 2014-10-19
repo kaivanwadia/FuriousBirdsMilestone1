@@ -235,6 +235,7 @@ Vector3d Simulation::computeDiffVwrtTheta(Vector3d cOfMass, Vector3d theta, Mesh
         }
         floorForce = floorForce/mesh.getNumVerts();
         diffV += floorForce;
+        cout<<"\nDiff\n";
     }
     return diffV;
 }
