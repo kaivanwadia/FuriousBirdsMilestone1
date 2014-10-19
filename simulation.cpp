@@ -123,13 +123,12 @@ void Simulation::takeSimulationStep()
             newOmega.setZero();
             newCOfMass = (*it)->c + params_.timeStep*(*it)->cvel;
             newTheta = VectorMath::axisAngle(VectorMath::rotationMatrix(params_.timeStep*(*it)->w)*VectorMath::rotationMatrix((*it)->theta));
-            newVelocity = (*it)->cvel - (params_.timeStep/((*it)->density * (*it)->getTemplate().vol))*computeDiffVwrtC((*it)->density, (*it)->getTemplate().vol);
+            newVelocity = (*it)->cvel - (params_.timeStep/((*it)->density * (*it)->getTemplate().vol))*computeDiffVwrtC(newCOfMass, newTheta, (*it)->getTemplate().getMesh(), (*it)->density, (*it)->getTemplate().vol);
             newOmega = (*it)->w;
             Vector3d constant = params_.timeStep*((*it)->density)*((*it)->w.transpose())*VectorMath::rotationMatrix(-1*(*it)->theta).transpose()
                     *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta);
-//            Vector3d constant = we have to add D2V for floor force
-            int i;
-            for(i = 0; i<params_.NewtonMaxIters; i++)
+            constant = constant - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh());
+            for(int i = 0; i<params_.NewtonMaxIters; i++)
             {
                 Vector3d fOfOmega;
                 fOfOmega = constant.transpose() + params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
@@ -189,9 +188,54 @@ Matrix3d Simulation::computeTMatrix(Vector3d vec)
     return tMatrix;
 }
 
-Vector3d Simulation::computeDiffVwrtC(double density, double vol)
+Vector3d Simulation::computeDiffVwrtC(Vector3d cOfMass, Vector3d theta, Mesh mesh, double density, double vol)
 {
-    Vector3d diffV(0, 0, -1*density*params_.gravityG*vol);
+    Vector3d diffV;
+    diffV.setZero();
+    if (params_.activeForces & params_.F_GRAVITY)
+    {
+        diffV<<0, 0, -1*density*params_.gravityG*vol;
+    }
+    if (params_.activeForces & params_.F_FLOOR)
+    {
+        Matrix3d RTheta = VectorMath::rotationMatrix(theta);
+        Vector3d zHat(0, 0, 1);
+        double floorForce = 0;
+        for (int i = 0; i<mesh.getNumVerts(); i++)
+        {
+            double checkValue = (cOfMass + RTheta*mesh.getVert(i)).dot(zHat);
+            if (checkValue <= 0)
+            {
+                floorForce += params_.floorStiffness * (checkValue);
+            }
+        }
+        floorForce = floorForce/mesh.getNumVerts();
+        diffV[2] += floorForce;
+    }
+    return diffV;
+}
+
+Vector3d Simulation::computeDiffVwrtTheta(Vector3d cOfMass, Vector3d theta, Mesh mesh)
+{
+    Vector3d diffV;
+    diffV.setZero();
+    if (params_.activeForces & params_.F_FLOOR)
+    {
+        Matrix3d RTheta = VectorMath::rotationMatrix(theta);
+        Vector3d zHat(0, 0, 1);
+        Vector3d floorForce;
+        floorForce.setZero();
+        for (int i = 0; i<mesh.getNumVerts(); i++)
+        {
+            double checkValue = (cOfMass + RTheta*mesh.getVert(i)).dot(zHat);
+            if (checkValue <= 0)
+            {
+                floorForce += params_.floorStiffness*checkValue*-computeBMatrix(theta, mesh.getVert(i))*zHat;
+            }
+        }
+        floorForce = floorForce/mesh.getNumVerts();
+        diffV += floorForce;
+    }
     return diffV;
 }
 

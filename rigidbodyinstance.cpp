@@ -68,7 +68,7 @@ void RigidBodyInstance::render()
             indices.push_back(verts[j]);
     }
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, &indices[0]);
-    Vector3d endpos = rbtemplate_.centerOfMass + (rbtemplate_.eigenVectors.col(0))*1.1;
+    Vector3d endpos = rbtemplate_.centerOfMass - (rbtemplate_.eigenVectors.col(0))*1.1;
     endpos = c + rot*endpos;
     glBegin(GL_LINES);
     {
@@ -77,7 +77,7 @@ void RigidBodyInstance::render()
         glVertex3f(endpos[0], endpos[1], endpos[2]);
     }
     glEnd();
-    endpos = rbtemplate_.centerOfMass + (rbtemplate_.eigenVectors.col(2))*1.1;
+    endpos = rbtemplate_.centerOfMass - (rbtemplate_.eigenVectors.col(2))*1.1;
     endpos = c + rot*endpos;
     glBegin(GL_LINES);
     {

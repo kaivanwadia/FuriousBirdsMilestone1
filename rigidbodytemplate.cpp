@@ -10,13 +10,11 @@ RigidBodyTemplate::RigidBodyTemplate(std::string &meshFilename)
 {
     mesh_ = new Mesh(meshFilename);
     calculateVolume();
-//    cout<<"Mesh name: "<<meshFilename<<endl;
     calculateCenterOfMass();
     translateRigidBodyToOrigin();
     calculateSmallestRadius();
     scaleRigidBody();
     calculateVolume();
-//    cout<<"Volume : "<<vol<<endl;
     calculateInertiaTensorMatrix();
     computeEigenVectorsandValues();
 }
@@ -70,7 +68,6 @@ void RigidBodyTemplate::calculateSmallestRadius()
             maxDistance = dist;
     }
     radius = maxDistance;
-//    cout<<"Radius : "<<radius<<endl;
 }
 
 void RigidBodyTemplate::scaleRigidBody()
@@ -122,7 +119,6 @@ void RigidBodyTemplate::calculateInertiaTensorMatrix()
     inertiaTensor(2,0) = -yzXZxyVector[1];
     inertiaTensor(2,1) = -yzXZxyVector[0];
     inertiaTensor(2,2) = xyzSquared[0] + xyzSquared[1];
-//    cout<<"Inertia Tensor : \n"<<inertiaTensor<<endl;
 }
 
 void RigidBodyTemplate::computeEigenVectorsandValues()
@@ -189,8 +185,6 @@ void RigidBodyTemplate::computeEigenVectorsandValues()
             eigenValues[2] = tempEigenValues[0];
         }
     }
-//    cout<<"Eigen Vectors : \n"<<eigenVectors<<endl;
-//    cout<<"Eigen Values : \n"<<eigenValues<<endl;
 }
 
 RigidBodyTemplate::~RigidBodyTemplate()

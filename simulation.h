@@ -11,6 +11,7 @@
 
 class RigidBodyTemplate;
 class RigidBodyInstance;
+class Mesh;
 
 typedef Eigen::Triplet<double> Tr;
 
@@ -35,9 +36,8 @@ public:
     Eigen::Matrix3d computeD2ofOmega(Eigen::Vector3d omega, Eigen::Vector3d secondTerm);
     Eigen::Matrix3d computeBMatrix(Eigen::Vector3d thetaI, Eigen::Vector3d omega);
 
-    Eigen::Vector3d computeDiffVwrtC(double density, double vol);
-    void computeV(Eigen::Vector3d cOfM, Eigen::Vector3d theta);
-    void computeD2ofV(Eigen::Vector3d cOfM, Eigen::Vector3d theta);
+    Eigen::Vector3d computeDiffVwrtC(Eigen::Vector3d cOfMass, Eigen::Vector3d theta, Mesh mesh, double density, double vol);
+    Eigen::Vector3d computeDiffVwrtTheta(Eigen::Vector3d cOfMass, Eigen::Vector3d theta, Mesh mesh);
 
 
 private:
