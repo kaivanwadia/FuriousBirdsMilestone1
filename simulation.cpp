@@ -127,11 +127,10 @@ void Simulation::takeSimulationStep()
             cout<<"\nOld Omega : \n"<<(*it)->w<<endl;
             newCOfMass = (*it)->c + params_.timeStep*(*it)->cvel;
             newTheta = VectorMath::axisAngle(VectorMath::rotationMatrix(params_.timeStep*(*it)->w)*VectorMath::rotationMatrix((*it)->theta));
-            newVelocity = (*it)->cvel - (params_.timeStep/((*it)->density * (*it)->getTemplate().vol))*computeDiffVwrtC(newCOfMass, newTheta);
+            newVelocity = (*it)->cvel - (params_.timeStep/((*it)->density * (*it)->getTemplate().vol))*computeDiffVwrtC((*it)->density, (*it)->getTemplate().vol);
             newOmega = (*it)->w;
             Vector3d constant = params_.timeStep*((*it)->density)*((*it)->w.transpose())*VectorMath::rotationMatrix(-1*(*it)->theta).transpose()
                     *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta);
-//            constant += add potential stuff (should be negative)
             cout<<"\nNEWTON METHOD BEGINS : "<<endl;
             int i;
             for(i = 0; i<params_.NewtonMaxIters; i++)
@@ -210,11 +209,10 @@ Matrix3d Simulation::computeTMatrix(Vector3d vec)
     return tMatrix;
 }
 
-Vector3d Simulation::computeDiffVwrtC(Vector3d cOfM, Vector3d theta)
+Vector3d Simulation::computeDiffVwrtC(double density, double vol)
 {
-    Vector3d gradV;
-    gradV.setZero();
-    return gradV;
+    Vector3d diffV(0, 0, -1*density*params_.gravityG*vol);
+    return diffV;
 }
 
 void Simulation::clearScene()
