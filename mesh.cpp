@@ -17,33 +17,65 @@ Mesh::Mesh(const std::string &filename) : numverts_(0), numfaces_(0)
 
     ifstream ifs(filename.c_str());
 
-    while(ifs)
-    {
-        string s;
-        ifs >> s;
-        if(s == "v")
+    if(filename=="resources/custom.obj"){
+        while(ifs)
         {
-            numverts_++;
-            for(int j=0; j<3; j++)
+            string s;
+            ifs >> s;
+            if(s == "v")
             {
-                double dummy;
-                ifs >> dummy;
-                coords.push_back(dummy);
+                numverts_++;
+                for(int j=0; j<3; j++)
+                {
+                    double dummy;
+                    ifs >> dummy;
+                    coords.push_back(dummy);
+                }
+            }else if(s=="f")
+            {
+                string line ="";
+                getline(ifs, line);
+                istringstream ss(line);
+                int f1, f2, f3;
+                ss>>f1>>f2>>f3;
+                faces.push_back(f1-1);
+                faces.push_back(f2-1);
+                faces.push_back(f3-1);
+                numfaces_++;
             }
         }
-        else if(s == "f")
+
+    }else{
+
+        while(ifs)
         {
-            numfaces_++;
-            for(int j=0; j<3; j++)
+            string s;
+            ifs >> s;
+            if(s == "v")
             {
-                int face;
-                ifs >> face;
-                char dummy;
-                ifs >> dummy;
-                ifs >> dummy;
-                int fnorm;
-                ifs >> fnorm;
-                faces.push_back(face-1);
+                numverts_++;
+                for(int j=0; j<3; j++)
+                {
+                    double dummy;
+                    ifs >> dummy;
+                    coords.push_back(dummy);
+
+                }
+            }
+            else if(s == "f")
+            {
+                numfaces_++;
+                for(int j=0; j<3; j++)
+                {
+                    int face;
+                    ifs >> face;
+                    char dummy;
+                    ifs >> dummy;
+                    ifs >> dummy;
+                    int fnorm;
+                    ifs >> fnorm;
+                    faces.push_back(face-1);
+                }
             }
         }
     }
