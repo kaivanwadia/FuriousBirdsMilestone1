@@ -48,7 +48,6 @@ Simulation::Simulation(const SimParameters &params) : params_(params), time_(0),
         }
     }
     renderLock_.unlock();
-    cout<<bodies_.size()<<endl;
 
 }
 
@@ -131,7 +130,6 @@ void Simulation::renderObjects()
 {
     renderLock_.lock();
     {
-        cout<<bodies_.size()<<endl;
         for(vector<RigidBodyInstance *>::iterator it = bodies_.begin(); it != bodies_.end(); ++it)
         {
             (*it)->render();
@@ -164,11 +162,6 @@ void Simulation::takeSimulationStep()
             Vector3d constant = params_.timeStep*((*it)->density)*((*it)->w.transpose())*VectorMath::rotationMatrix(-1*(*it)->theta).transpose()
                     *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta)
                     - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh()).transpose();
-//            cout<<"\n Temp : \n"<<params_.timeStep*((*it)->density)*((*it)->w.transpose())*VectorMath::rotationMatrix(-1*(*it)->theta).transpose()
-//                  *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta)
-//                  - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh()).transpose()<<endl;
-//            cout<<"\nConstant:\n"<<constant<<endl;
-//            constant = constant - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh());
             for(int i = 0; i<params_.NewtonMaxIters; i++)
             {
                 Vector3d fOfOmega;
@@ -176,13 +169,6 @@ void Simulation::takeSimulationStep()
                             *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta)
                         -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
                             *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
-//                cout<<"\nTemp 1:\n"<<constant.transpose() + params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
-//                      *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta)
-//                  -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
-//                      *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
-//                cout<<"\n f of omega:\n"<<fOfOmega<<endl;
-//                fOfOmega += -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
-//                        *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
                 if (fOfOmega.norm() < params_.NewtonTolerance)
                 {
                     break;
