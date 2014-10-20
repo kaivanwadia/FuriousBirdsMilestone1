@@ -49,9 +49,10 @@ private:
 
     double time_;
     GLuint floorTex_;
-
     std::vector<RigidBodyTemplate *> templates_;
     std::vector<RigidBodyInstance *> bodies_;
+    std::vector<RigidBodyInstance *> existingBodies_;
+    bool first;
 };
 
 #endif // SIMULATION_H

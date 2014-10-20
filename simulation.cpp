@@ -19,6 +19,37 @@ using namespace std;
 Simulation::Simulation(const SimParameters &params) : params_(params), time_(0), floorTex_(0)
 {
     loadRigidBodies();
+    first = true;
+    renderLock_.lock();
+    {
+
+        Vector3d orient(0,0,0);
+        Vector3d vForAngularW, angularV;
+        Vector3d pos(10,0,5);
+        Vector3d velocity(10,5,0);
+        vForAngularW.setZero();
+        angularV.setZero();
+        for(int i=0; i< 2; i++){
+
+            vForAngularW[0] = VectorMath::randomUnitIntervalReal();
+            vForAngularW[1] = VectorMath::randomUnitIntervalReal();
+            vForAngularW[2] = VectorMath::randomUnitIntervalReal();
+            double norm = vForAngularW.norm();
+            vForAngularW = vForAngularW/norm;
+            vForAngularW = vForAngularW*params_.randomLaunchVelMagnitude;
+            double orientnorm = orient.norm();
+            Matrix3d Id;
+            Id.setIdentity();
+            Eigen::Matrix3d Rtheta = cos(orientnorm)*Id + sin(orientnorm)*VectorMath::crossProductMatrix(orient) + (1-cos(orientnorm))*orient*orient.transpose();
+            angularV = Rtheta*vForAngularW;
+
+            RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[params_.launchBody], pos, orient, params_.bodyDensity, velocity*(i+1), angularV);
+            bodies_.push_back(newbody);
+        }
+    }
+    renderLock_.unlock();
+    cout<<bodies_.size()<<endl;
+
 }
 
 Simulation::~Simulation()
@@ -100,7 +131,12 @@ void Simulation::renderObjects()
 {
     renderLock_.lock();
     {
+        cout<<bodies_.size()<<endl;
         for(vector<RigidBodyInstance *>::iterator it = bodies_.begin(); it != bodies_.end(); ++it)
+        {
+            (*it)->render();
+        }
+        for(vector<RigidBodyInstance *>::iterator it = existingBodies_.begin(); it != existingBodies_.end(); ++it)
         {
             (*it)->render();
         }
@@ -253,13 +289,16 @@ Vector3d Simulation::computeDiffVwrtTheta(Vector3d cOfMass, Vector3d theta, Mesh
 
 void Simulation::clearScene()
 {
-    renderLock_.lock();
-    {
-        for(vector<RigidBodyInstance *>::iterator it = bodies_.begin(); it != bodies_.end(); ++it)
-            delete *it;
-        bodies_.clear();
+    if(!first){
+        renderLock_.lock();
+        {
+            for(vector<RigidBodyInstance *>::iterator it = bodies_.begin(); it != bodies_.end(); ++it)
+                delete *it;
+            bodies_.clear();
+        }
+        renderLock_.unlock();
     }
-    renderLock_.unlock();
+    first = false;
 }
 
 void Simulation::addRigidBody(Vector3d pos, Vector3d lookdir)
