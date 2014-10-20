@@ -126,15 +126,27 @@ void Simulation::takeSimulationStep()
             newVelocity = (*it)->cvel - (params_.timeStep/((*it)->density * (*it)->getTemplate().vol))*computeDiffVwrtC(newCOfMass, newTheta, (*it)->getTemplate().getMesh(), (*it)->density, (*it)->getTemplate().vol);
             newOmega = (*it)->w;
             Vector3d constant = params_.timeStep*((*it)->density)*((*it)->w.transpose())*VectorMath::rotationMatrix(-1*(*it)->theta).transpose()
-                    *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta);
-            constant = constant - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh());
+                    *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta)
+                    - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh()).transpose();
+//            cout<<"\n Temp : \n"<<params_.timeStep*((*it)->density)*((*it)->w.transpose())*VectorMath::rotationMatrix(-1*(*it)->theta).transpose()
+//                  *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*(*it)->theta)*computeD2ofOmega((*it)->w, newTheta)
+//                  - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh()).transpose()<<endl;
+//            cout<<"\nConstant:\n"<<constant<<endl;
+//            constant = constant - params_.timeStep*computeDiffVwrtTheta(newCOfMass, newTheta, (*it)->getTemplate().getMesh());
             for(int i = 0; i<params_.NewtonMaxIters; i++)
             {
                 Vector3d fOfOmega;
                 fOfOmega = constant.transpose() + params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
-                        *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta);
-                fOfOmega += -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
-                        *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
+                            *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta)
+                        -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
+                            *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
+//                cout<<"\nTemp 1:\n"<<constant.transpose() + params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
+//                      *((*it)->getTemplate().inertiaTensor)*VectorMath::rotationMatrix(-1*newTheta)*computeD1ofOmega(newOmega, newTheta)
+//                  -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
+//                      *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
+//                cout<<"\n f of omega:\n"<<fOfOmega<<endl;
+//                fOfOmega += -params_.timeStep*((*it)->density)*(newOmega.transpose())*VectorMath::rotationMatrix(-1*newTheta).transpose()
+//                        *((*it)->getTemplate().inertiaTensor)*computeBMatrix(-1*newTheta, newOmega);
                 if (fOfOmega.norm() < params_.NewtonTolerance)
                 {
                     break;
@@ -230,12 +242,11 @@ Vector3d Simulation::computeDiffVwrtTheta(Vector3d cOfMass, Vector3d theta, Mesh
             double checkValue = (cOfMass + RTheta*mesh.getVert(i)).dot(zHat);
             if (checkValue <= 0)
             {
-                floorForce += params_.floorStiffness*checkValue*-computeBMatrix(theta, mesh.getVert(i))*zHat;
+                floorForce += params_.floorStiffness*checkValue*zHat.transpose()*computeBMatrix(theta,mesh.getVert(i));
             }
         }
         floorForce = floorForce/mesh.getNumVerts();
         diffV += floorForce;
-        cout<<"\nDiff\n";
     }
     return diffV;
 }
