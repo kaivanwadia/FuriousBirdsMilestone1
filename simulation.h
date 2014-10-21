@@ -8,6 +8,7 @@
 #include <QMutex>
 #include "simparameters.h"
 #include <QGLWidget>
+#include <ctime>
 
 class RigidBodyTemplate;
 class RigidBodyInstance;
@@ -38,7 +39,9 @@ public:
 
     Eigen::Vector3d computeDiffVwrtC(Eigen::Vector3d cOfMass, Eigen::Vector3d theta, Mesh mesh, double density, double vol);
     Eigen::Vector3d computeDiffVwrtTheta(Eigen::Vector3d cOfMass, Eigen::Vector3d theta, Mesh mesh);
-
+    void setupGame();
+    void mouseClickedInGameMode(Eigen::Vector3d pos);
+    int highScore;
 
 private:
     void loadFloorTexture();
@@ -49,9 +52,12 @@ private:
 
     double time_;
     GLuint floorTex_;
-
     std::vector<RigidBodyTemplate *> templates_;
     std::vector<RigidBodyInstance *> bodies_;
+    time_t gameTime_;
+
+    //extra credit
+
 };
 
 #endif // SIMULATION_H

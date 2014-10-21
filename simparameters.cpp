@@ -17,4 +17,5 @@ SimParameters::SimParameters()
     randomLaunchOrientation = false;
     randomLaunchAngVel = false;
     randomLaunchVelMagnitude = 5.0;
+    gameMode = false;
 }

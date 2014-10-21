@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu Oct 16 19:08:16 2014
+** Created: Mon Oct 20 23:55:34 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -50,6 +50,8 @@ public:
     QHBoxLayout *horizontalLayout;
     QGroupBox *SimulationBox;
     QPushButton *startSimulationButton;
+    QCheckBox *gameModeCheckBox;
+    QLabel *scoreLabel;
     QGroupBox *SimParametersBox;
     QLabel *timeStepLabel;
     QLabel *newtonTolLabel;
@@ -139,6 +141,12 @@ public:
         startSimulationButton = new QPushButton(SimulationBox);
         startSimulationButton->setObjectName(QString::fromUtf8("startSimulationButton"));
         startSimulationButton->setGeometry(QRect(10, 50, 181, 27));
+        gameModeCheckBox = new QCheckBox(SimulationBox);
+        gameModeCheckBox->setObjectName(QString::fromUtf8("gameModeCheckBox"));
+        gameModeCheckBox->setGeometry(QRect(10, 120, 131, 21));
+        scoreLabel = new QLabel(SimulationBox);
+        scoreLabel->setObjectName(QString::fromUtf8("scoreLabel"));
+        scoreLabel->setGeometry(QRect(15, 140, 390, 17));
 
         horizontalLayout->addWidget(SimulationBox);
 
@@ -296,6 +304,8 @@ public:
         simOptionsBox->setTitle(QApplication::translate("MainWindow", "Simulation Options", 0, QApplication::UnicodeUTF8));
         SimulationBox->setTitle(QApplication::translate("MainWindow", "Simulation Controls", 0, QApplication::UnicodeUTF8));
         startSimulationButton->setText(QApplication::translate("MainWindow", "Start Simulation", 0, QApplication::UnicodeUTF8));
+        gameModeCheckBox->setText(QApplication::translate("MainWindow", "Game Mode", 0, QApplication::UnicodeUTF8));
+        scoreLabel->setText(QApplication::translate("MainWindow", "High Score:", 0, QApplication::UnicodeUTF8));
         SimParametersBox->setTitle(QApplication::translate("MainWindow", "Parameters", 0, QApplication::UnicodeUTF8));
         timeStepLabel->setText(QApplication::translate("MainWindow", "Time Step:", 0, QApplication::UnicodeUTF8));
         newtonTolLabel->setText(QApplication::translate("MainWindow", "Newton Tolerance:", 0, QApplication::UnicodeUTF8));

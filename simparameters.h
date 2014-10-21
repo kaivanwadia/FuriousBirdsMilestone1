@@ -10,8 +10,8 @@ struct SimParameters
 
     const static int R_SPHERE  = 0;
     const static int R_2BY4    = 1;
-    const static int R_BUNNY   = 2;
-    const static int R_CUSTOM  = 3;
+    const static int R_BUNNY   = 3;
+    const static int R_CUSTOM  = 2;
 
     bool simRunning;
     double timeStep;
@@ -21,6 +21,7 @@ struct SimParameters
     int activeForces;
     double gravityG;
     double floorStiffness;
+    bool gameMode;
 
     double bodyDensity;
     int launchBody;

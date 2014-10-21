@@ -3,6 +3,7 @@
 #include "simulation.h"
 #include <QDebug>
 #include <Eigen/Core>
+#include <iostream>
 
 using namespace Eigen;
 
@@ -46,6 +47,11 @@ void Controller::clearScene()
     sim_->clearScene();
 }
 
+void Controller::setupGame()
+{
+    sim_->setupGame();
+}
+
 void Controller::updateParameters(SimParameters params)
 {
     params_ = params;
@@ -65,11 +71,22 @@ void Controller::mouseClicked(double x, double y, double z, double dx, double dy
 {
     Vector3d pos(x,y,z);
     Vector3d dir(dx,dy,dz);
-    sim_->addRigidBody(pos, dir);
+    if(params_.gameMode)
+    {
+        sim_->mouseClickedInGameMode(pos);
+    } else {
+        sim_->addRigidBody(pos, dir);
+    }
 }
 
 void Controller::simTick()
 {
     if(params_.simRunning)
+    {
         sim_->takeSimulationStep();
+        if (params_.gameMode)
+        {
+            QMetaObject::invokeMethod(mw_, "setScore", Q_ARG(int, sim_->highScore));
+        }
+    }
 }

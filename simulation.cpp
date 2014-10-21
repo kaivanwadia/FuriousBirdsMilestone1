@@ -10,6 +10,7 @@
 #include "vectormath.h"
 #include <Eigen/Dense>
 #include "mesh.h"
+#include <time.h>
 
 const double PI = 3.1415926535898;
 
@@ -19,6 +20,7 @@ using namespace std;
 Simulation::Simulation(const SimParameters &params) : params_(params), time_(0), floorTex_(0)
 {
     loadRigidBodies();
+    highScore = 0;
 }
 
 Simulation::~Simulation()
@@ -285,4 +287,78 @@ void Simulation::addRigidBody(Vector3d pos, Vector3d lookdir)
         bodies_.push_back(newbody);
     }
     renderLock_.unlock();
+}
+
+void Simulation::mouseClickedInGameMode(Vector3d pos) {
+    set<int> bodiesToDelete;
+    vector<RigidBodyInstance *> newBodies;
+    for(int i = 0; i<(int)bodies_.size(); i++)
+    {
+        double dist = (pos - bodies_[i]->c).norm();
+        if (dist < 3) {
+            bodiesToDelete.insert(i);
+        }
+    }
+    if (!bodiesToDelete.empty())
+    {
+        if (gameTime_ == 0)
+        {
+            gameTime_ = time(NULL);
+        }
+        for(int i = 0; i<(int)bodies_.size(); i++)
+        {
+            if (bodiesToDelete.count(i) == 0) {
+                newBodies.push_back(bodies_[i]);
+            }
+        }
+        bodies_ = newBodies;
+        if (bodies_.empty())
+        {
+            time_t endTime = time(NULL);
+            int timeTaken = (int)(endTime - gameTime_);
+            int score = 1000/timeTaken;
+            if (score > highScore)
+            {
+                highScore = score;
+            }
+            setupGame();
+        }
+    }
+}
+
+void Simulation::setupGame()
+{
+    clearScene();
+    gameTime_ = 0;
+    Vector3d orient(0,0,0);
+    Vector3d vForAngularW, angularV;
+    Vector3d pos;
+    Vector3d lookdir;
+    Vector3d velocity;
+    vForAngularW.setZero();
+    angularV.setZero();
+    for(int i=0; i < 5; i++) {
+        pos<<VectorMath::randomUnitIntervalReal()*50,VectorMath::randomUnitIntervalReal()*100,abs(VectorMath::randomUnitIntervalReal()*20);
+        lookdir<<VectorMath::randomUnitIntervalReal()*100,VectorMath::randomUnitIntervalReal()*100,abs(VectorMath::randomUnitIntervalReal()*20);
+        velocity<<VectorMath::randomUnitIntervalReal()*10,VectorMath::randomUnitIntervalReal()*10,abs(VectorMath::randomUnitIntervalReal()*10);
+        orient[0] = VectorMath::randomUnitIntervalReal();
+        orient[1] = VectorMath::randomUnitIntervalReal();
+        orient[2] = VectorMath::randomUnitIntervalReal();
+        double norm = orient.norm();
+        orient = orient/norm;
+        vForAngularW[0] = VectorMath::randomUnitIntervalReal();
+        vForAngularW[1] = VectorMath::randomUnitIntervalReal();
+        vForAngularW[2] = VectorMath::randomUnitIntervalReal();
+        norm = vForAngularW.norm();
+        vForAngularW = vForAngularW/norm;
+        vForAngularW = vForAngularW*params_.randomLaunchVelMagnitude;
+        double orientnorm = orient.norm();
+        Matrix3d Id;
+        Id.setIdentity();
+        Eigen::Matrix3d Rtheta = cos(orientnorm)*Id + sin(orientnorm)*VectorMath::crossProductMatrix(orient) + (1-cos(orientnorm))*orient*orient.transpose();
+        angularV = Rtheta*vForAngularW;
+        int index = round(abs(VectorMath::randomUnitIntervalReal()*2));
+        RigidBodyInstance *newbody = new RigidBodyInstance(*templates_[index == 2? 3 : index], pos, orient, params_.bodyDensity, velocity, angularV);
+        bodies_.push_back(newbody);
+    }
 }

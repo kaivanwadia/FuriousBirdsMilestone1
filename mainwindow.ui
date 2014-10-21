@@ -97,6 +97,32 @@
               <string>Start Simulation</string>
              </property>
             </widget>
+            <widget class="QCheckBox" name="gameModeCheckBox">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>120</y>
+               <width>131</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Game Mode</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="scoreLabel">
+             <property name="geometry">
+              <rect>
+               <x>15</x>
+               <y>140</y>
+               <width>390</width>
+               <height>17</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>High Score:</string>
+             </property>
+            </widget>
            </widget>
           </item>
           <item>

@@ -21,6 +21,7 @@ public:
 
 public slots:
     void setUIFromParameters(const SimParameters &params);
+    void setScore(const int score);
 
 private slots:
     void updateGL();
@@ -40,6 +41,8 @@ private slots:
     void on_newtonMaxItersEdit_editingFinished();
 
     void on_gravityCheckBox_clicked();
+
+    void on_gameModeCheckBox_clicked();
 
     void on_floorCheckBox_clicked();
 
