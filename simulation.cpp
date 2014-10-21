@@ -338,7 +338,7 @@ void Simulation::setupGame()
     vForAngularW.setZero();
     angularV.setZero();
     for(int i=0; i < 5; i++) {
-        pos<<VectorMath::randomUnitIntervalReal()*50,VectorMath::randomUnitIntervalReal()*100,abs(VectorMath::randomUnitIntervalReal()*20);
+        pos<<VectorMath::randomUnitIntervalReal()*50,VectorMath::randomUnitIntervalReal()*50,abs(VectorMath::randomUnitIntervalReal()*20);
         lookdir<<VectorMath::randomUnitIntervalReal()*100,VectorMath::randomUnitIntervalReal()*100,abs(VectorMath::randomUnitIntervalReal()*20);
         velocity<<VectorMath::randomUnitIntervalReal()*10,VectorMath::randomUnitIntervalReal()*10,abs(VectorMath::randomUnitIntervalReal()*10);
         orient[0] = VectorMath::randomUnitIntervalReal();
