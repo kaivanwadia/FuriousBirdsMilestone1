@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "simparameters.h"
 #include "controller.h"
+#include <iostream>
 
 MainWindow::MainWindow(Controller &cont, int fps, QWidget *parent) :
     QMainWindow(parent),
@@ -39,7 +40,7 @@ void MainWindow::setParametersFromUI()
     if(ui->gravityCheckBox->isChecked())
         params.activeForces |= SimParameters::F_GRAVITY;
     if(ui->floorCheckBox->isChecked())
-        params.activeForces |= SimParameters::F_FLOOR;        
+        params.activeForces |= SimParameters::F_FLOOR;
 
     params.gravityG = ui->gravityGEdit->text().toDouble();
     params.floorStiffness = ui->floorStiffnessEdit->text().toDouble();
@@ -59,6 +60,7 @@ void MainWindow::setParametersFromUI()
     params.randomLaunchAngVel = ui->randomAngularVelCheckBox->isChecked();
     params.randomLaunchOrientation = ui->randomOrienatationCheckBox->isChecked();
     params.randomLaunchVelMagnitude = ui->randomVelMagEdit->text().toDouble();
+    params.gameMode = ui->gameModeCheckBox->isChecked();
 
     setUIFromParameters(params);
     QMetaObject::invokeMethod(&cont_, "updateParameters", Q_ARG(SimParameters, params));
@@ -83,6 +85,7 @@ void MainWindow::setUIFromParameters(const SimParameters &params)
 
     ui->gravityCheckBox->setChecked(params.activeForces & SimParameters::F_GRAVITY);
     ui->floorCheckBox->setChecked(params.activeForces & SimParameters::F_FLOOR);
+    ui->gameModeCheckBox->setChecked(params.gameMode);
 
     ui->gravityGEdit->setText(QString::number(params.gravityG));       
     ui->floorStiffnessEdit->setText(QString::number(params.floorStiffness));
@@ -109,6 +112,16 @@ void MainWindow::setUIFromParameters(const SimParameters &params)
     ui->randomOrienatationCheckBox->setChecked(params.randomLaunchOrientation);
     ui->randomAngularVelCheckBox->setChecked(params.randomLaunchAngVel);
     ui->randomVelMagEdit->setText(QString::number(params.randomLaunchVelMagnitude));
+
+    ui->gameModeCheckBox->setChecked(params.gameMode);
+}
+
+void MainWindow::setScore(const int score)
+{
+    std::ostringstream highScore;
+    highScore <<"High Score: "<<score;
+    QString hScore(highScore.str().c_str());
+    ui->scoreLabel->setText(hScore);
 }
 
 void MainWindow::updateGL()
@@ -150,6 +163,20 @@ void MainWindow::on_newtonMaxItersEdit_editingFinished()
 
 void MainWindow::on_gravityCheckBox_clicked()
 {
+    setParametersFromUI();
+}
+
+void MainWindow::on_gameModeCheckBox_clicked()
+{
+    if(simRunning_)
+    {
+        on_startSimulationButton_clicked();
+    }
+    QMetaObject::invokeMethod(&cont_, "clearScene");
+    if(ui->gameModeCheckBox->isChecked())
+    {
+        QMetaObject::invokeMethod(&cont_, "setupGame");
+    }
     setParametersFromUI();
 }
 
